@@ -4,6 +4,7 @@ A discord bot focused on remote control of the host PC
 [not fully yet implemented] IMPORTANT: Ensure that you set your data (User id, Channel id, etc.) properly or else the bot will NOT work (safety precaution to prevent other users from controlling your pc)
 
 Source info:
+Data format: JSON
 Used Languages|
 Python, Powershell
 Used Modules|
