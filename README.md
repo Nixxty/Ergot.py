@@ -21,7 +21,7 @@ asnycio
 git
 
 
-as of version 0.1, the bot can currently:
+as of version 0.1-alpha-1, the bot can currently:
 Take screenshots and send them to a channel.
 Check your CPU usage, RAM usage, and GPU temps and neatly embed them into a channel.
 shutoff your PC from Discord (of course has confirmation and will soon have a check in place that checks for your ID)
