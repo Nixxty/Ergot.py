@@ -8,7 +8,7 @@ dir_p = os.path.join(dir_p, 'UidData.json')
 uidfound = False
 def DataOV(mib):
     if mib == True:
-        uinput = input("One of your IDS was undefined, check UidData.json and replace any ID missing/not defined (N/A) with the proper data. Optionally you can choose to overwrite the data from here. Overwrite data? (Y/N): ")
+        uinput = input("One of your IDS was undefined, check UidData.json and replace any ID missing/not defined (N/A) with the proper data.\nOptionally you can choose to overwrite the data from here. Overwrite data? (Y/N): ")
     elif mib != True:
         uinput = input("Overwrite Function called, type y to continue, type n to quit. (Y/N): ")
     if uinput.lower() == 'yes' or uinput.lower() == 'y':
