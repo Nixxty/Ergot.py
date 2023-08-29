@@ -3,7 +3,7 @@ from ctypes.wintypes import HWND, LPWSTR, UINT
 
 
 headers = {}
-gitversion = 'https://api.github.com/repos/Nixxty/Ergot.py/contents/version'
+gitversion = 'https://api.github.com/repos/Nixxty/Ergot.py/contents/updbundle/version'
 gitlink = 'https://github.com/Nixxty/Ergot.py'
 r = requests.get(gitversion, headers=headers)
 r.raise_for_status()
