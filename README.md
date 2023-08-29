@@ -1,14 +1,16 @@
 # Ergot.py
 A discord bot focused on remote control of the host PC
 
-[not fully yet implemented] IMPORTANT: Ensure that you set your data (User id, Channel id, etc.) properly or else the bot will NOT work (safety precaution to prevent other users from controlling your pc)
+IMPORTANT: Ensure that you set your data (Guild ID, Channel ID, Bot Token) properly, or else the bot will NOT work (safety precaution to prevent other users from controlling your PC)
+
+NOTE: main.py handles EVERYTHING in this project. it runs the bot file and it checks for updates, etc. There is no need to run the Python files separately.
 
 Source info:
 Data format: JSON
 Used Languages|
-Python, Powershell
+Python
 Used Modules|
-json
+JSON
 os
 discord
 gputil
@@ -17,11 +19,13 @@ datetime
 random
 string
 subprocess
-asnycio
-git
 
-
-as of version 0.1-alpha-1, the bot can currently:
+as of version 0.1-alpha-2, the bot can currently:
 Take screenshots and send them to a channel.
 Check your CPU usage, RAM usage, and GPU temps and neatly embed them into a channel.
-shutoff your PC from Discord (of course has confirmation and will soon have a check in place that checks for your ID)
+shutoff your PC from Discord
+
+version 0.1-alpha-2 update included:
+Checks for channel ID, guild ID, and author ID, making the bot more secure.
+a function that checks for updates by comparing the local version file on a PC to the GitHub version.
+made everything run from main.py
