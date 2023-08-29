@@ -71,7 +71,7 @@ def init():
         with open(dir_p, "w") as g:
            g.write(json_obj)
            g.close()
-           input("relaunch this file!")
+           input("Your IDs are not set yet! make sure you relaunch main.py and use option 2 again to set them.\nif you're running datachov just relaunch datachov again.")
            exit(0)
 
 
