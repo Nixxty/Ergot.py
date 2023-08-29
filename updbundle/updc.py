@@ -17,6 +17,10 @@ with open(dir_p, 'r') as f:
 deco_con = file_con = base64.b64decode(file_con).decode()
 gitdecon = deco_con.split('\n')
 vercon = vdata.split('\n')
+gitdecon[0] = gitdecon[0].strip()
+gitdecon[1] = gitdecon[1].strip()
+vercon[0] = vercon[0].strip()
+vercon[1] = vercon[1].strip()
 
 _user32 = ctypes.WinDLL('user32', use_last_error=True)
 
