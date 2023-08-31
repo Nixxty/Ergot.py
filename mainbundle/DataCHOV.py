@@ -8,7 +8,7 @@ dir_p = os.path.join(dir_p, 'UidData.json')
 uidfound = False
 def DataOV(mib):
     if mib == True:
-        uinput = input("One of your IDS was undefined, check UidData.json and replace any ID missing/not defined (N/A) with the proper data.\nOptionally you can choose to overwrite the data from here. Overwrite data? (Y/N): ")
+        uinput = input("One of your IDS was undefined, check UidData.json and replace any ID missing/not defined (N/A) with the proper data. Optionally you can choose to overwrite the data from here. Overwrite data? (Y/N): ")
     elif mib != True:
         uinput = input("Overwrite Function called, type y to continue, type n to quit. (Y/N): ")
     if uinput.lower() == 'yes' or uinput.lower() == 'y':
@@ -71,7 +71,7 @@ def init():
         with open(dir_p, "w") as g:
            g.write(json_obj)
            g.close()
-           input("Your IDs are not set yet! make sure you relaunch main.py and use option 2 again to set them.\nif you're running datachov just relaunch datachov again.")
+           input("relaunch this file!")
            exit(0)
 
 
@@ -95,5 +95,9 @@ def main():
                 else:
                     print("Guild ID: " + guild_id + "\nChannel ID: " + channel_id + "\nBot_Token: " + token_id)
                 uinput = input("Do you wish to overwrite your data? (Y/N): ")
+                global returned
                 if uinput.lower() == 'yes' or uinput.lower() == 'y':
                     DataOV(mib)
+                    returned = True
+                else:
+                    returned = False
