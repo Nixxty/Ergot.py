@@ -86,13 +86,16 @@ async def ss(ctx):
       res = ''.join(random.choices(string.ascii_uppercase + string.digits, k=N))
       image = getScreenAsImage()
       full = "tempUser" + user + str(res) + ".png"
+      fullpath = os.path.join(dir_p, full)
+      print("Full path to png | "+fullpath)
       image.save(full)
       if os.path.exists(full):
-         await ctx.send(file=discord.File("D:\\Ergotism\\" + full))
+         print("found "+full)
+         await ctx.send(file=discord.File(full))
       else:
          print("Cannot find " + full + " :(")
-         await ctx.send("Cannot find " + full + " :(")
-      print ("removing D:Ergotism\\" + full)
+         await ctx.send("Cannot find " + full + " :("+"\nfull path | "+fullpath)
+      print ("Removing file | "+fullpath)
       if os.path.exists(full):
          os.remove(full)
          await ctx.send("removed screenshot")
