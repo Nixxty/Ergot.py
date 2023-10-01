@@ -1,27 +1,33 @@
 import base64, os, requests, ctypes, subprocess, sys, webbrowser
 from ctypes.wintypes import HWND, LPWSTR, UINT
 
-
+### Version file from Github
 headers = {}
 gitversion = 'https://api.github.com/repos/Nixxty/Ergot.py/contents/updbundle/version'
 gitlink = 'https://github.com/Nixxty/Ergot.py'
-r = requests.get(gitversion, headers=headers)
-r.raise_for_status()
-data = r.json()
-file_con = data['content']
-dir_p = os.path.dirname(os.path.realpath(__file__))
-dir_p = os.path.join(dir_p, 'version')
-with open(dir_p, 'r') as f:
-    vdata = f.read()
+githubversionfile = requests.get(gitversion, headers=headers)
+githubversionfile.raise_for_status()
+### turning github version file into a list var
+data = githubversionfile.json()
+gitfile_content = data['content']
+### Grabbing local version files content
+Directory_Path = os.path.dirname(os.path.realpath(__file__))
+Directory_Path = os.path.join(Directory_Path, 'version')
+with open(Directory_Path, 'r') as f:
+    LocalVersionData = f.read()
     f.close()
-deco_con = file_con = base64.b64decode(file_con).decode()
-gitdecon = deco_con.split('\n')
-vercon = vdata.split('\n')
-gitdecon[0] = gitdecon[0].strip()
-gitdecon[1] = gitdecon[1].strip()
-vercon[0] = vercon[0].strip()
-vercon[1] = vercon[1].strip()
+### Dechipering Github version B64 to ASCII
+gitdecoded_content = gitfile_content = base64.b64decode(gitfile_content).decode()
+GitDecodedContentAsList = gitdecoded_content.split('\n')
+LocalVersionContent = LocalVersionData.split('\n')
+### Removing any whitespace from string (iirc)
+GitDecodedContentAsList[0] = GitDecodedContentAsList[0].strip()
+GitDecodedContentAsList[1] = GitDecodedContentAsList[1].strip()
+LocalVersionContent[0] = LocalVersionContent[0].strip()
+LocalVersionContent[1] = LocalVersionContent[1].strip()
 
+
+### Message box stuff
 _user32 = ctypes.WinDLL('user32', use_last_error=True)
 
 _MessageBoxW = _user32.MessageBoxW
@@ -32,6 +38,8 @@ YESNO = 0x04
 IDYES = 6
 IDNO = 7
 
+
+### msg box function
 def Mbox(hwnd, title, text, utype):
     result = _MessageBoxW(hwnd, title, text, utype)
     if not result:
@@ -46,10 +54,10 @@ def httpslinkstart(gitlink):
         webbrowser.open_new_tab(url)
 
 
-
+### Update available function, asks user if they would like a link to the github to open.
 def mainbox():
     try:
-        result = Mbox(None, 'Would you like to update to version: '+(gitdecon[0])+'?\n\nupdate time: '+(gitdecon[1]), 'Ergot UPD Confirmation', YESNO)
+        result = Mbox(None, 'Would you like to update to version: '+(GitDecodedContentAsList[0])+'?\n\nupdate time: '+(GitDecodedContentAsList[1]), 'Ergot UPD Confirmation', YESNO)
         if result == IDYES:
             print("pressed yes")
             httpslinkstart(gitlink=gitlink)
@@ -61,9 +69,9 @@ def mainbox():
         print("an error occured:\n".format(win_err))
 
 def maincheck():
-    print("local version: "+vercon[0]+"\nlocal update time: "+vercon[1]+"\n\ngit version: " + gitdecon[0]+ "\ngit update time: " + gitdecon[1])
-    if gitdecon[0] and vercon[0] == gitdecon[0]:
+    print("local version: "+LocalVersionContent[0]+"\nlocal update time: "+LocalVersionContent[1]+"\n\ngit version: " + GitDecodedContentAsList[0]+ "\ngit update time: " + GitDecodedContentAsList[1])
+    if LocalVersionContent[0] == GitDecodedContentAsList[0]:
         print("up to date!")
-    elif gitdecon[0] and vercon[0] != gitdecon[0]:
+    elif LocalVersionContent[0] != GitDecodedContentAsList[0]:
         print("Update available.")
         mainbox()
