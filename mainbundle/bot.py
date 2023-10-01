@@ -1,7 +1,8 @@
 #DO NOT RUN THIS FILE, INSTEAD RUN MAIN.PY SO EVERY NECESSARY PYTHON FILE RUNS WITH THE BOT.
 
-import os, discord, GPUtil, psutil, datetime, random, string, json
+import os, discord, GPUtil, psutil, datetime, random, string, json, wmi, asyncio
 from discord.ext import commands
+from .exts.cmds import clearterminal
 from desktopmagic.screengrab_win32 import (getScreenAsImage)
 
 ### intents and user setting.
@@ -10,16 +11,21 @@ user = os.environ.get('USERNAME')
 ###
 
 ### UID.JSON FILE READING/SPLITTING AND ASSIGNMENT
-dir_p = os.path.dirname(os.path.realpath(__file__))
-dir_p = os.path.join(dir_p, 'UidData.json')
-with open(dir_p, 'r+') as f:
-    data = json.load(f)
-    f.close()
-    for i in data['permissions']:
-        guild_id = i['guild_id']
-        channel_id = i['channel_id']
-        token_id = i['token_id']
-        token_ob = i['token_ob']
+directory_path = os.path.dirname(os.path.realpath(__file__))
+directory_path = os.path.join(directory_path, 'UidData.json')
+try:
+    with open(directory_path, 'r+') as file:   
+        jslist = json.load(file)
+        file.close()
+        for item in jslist['permissions']:
+            guild_id = item['guild_id']
+            channel_id = item['channel_id']
+            token_id = item['token_id']
+            token_ob = item['token_ob']
+except FileNotFoundError:
+    input('UidData.json was not found! try running Data checker/overwriter (option 2) before running bot in ergot.py!')
+    exit()
+
 if token_ob == True:
     print("Channel ID: " + channel_id + "\nBot_Token: obscured, check json file if you wish to see it.")
 else:
@@ -27,14 +33,21 @@ else:
 ###
 
 ### SAFETY
-mid = 'undefined'
-if guild_id==mid or channel_id==mid or token_id==mid or token_ob==mid:
+NoJsonData = 'undefined'
+if guild_id==NoJsonData or channel_id==NoJsonData or token_id==NoJsonData or token_ob==NoJsonData:
     input("RUN DATACHOV OR ELSE THIS BOT WILL NOT RUN.")
     exit()
 
+### IMPORTANT VARIABLES/PARAMETERS/LISTS/DICTIONARIES
+directory_path = os.path.dirname(os.path.realpath(__file__))
+### GENERAL FUNCTIONS
+###
+
+
+
 
 ### bot start
-client = commands.Bot(command_prefix = ";;", intents=intents)
+client = commands.Bot(command_prefix = ";;", intents=intents, help_command=None)
 # loading all cogs
 async def load_extensions():
     for filename in os.listdir("./cogs"):
@@ -45,7 +58,9 @@ async def load_extensions():
 @client.event #sets status
 async def on_ready():
     await client.change_presence(status=discord.Status.online, activity=discord.Game('ACTIVE'))
-    print("client started")
+    print("Bot started.")
+
+
 
 ###checks
 def is_in_chan(chan_id): #function that checks if a command is ran in user set channel
@@ -59,70 +74,104 @@ def is_in_guild(server_id): #function that does the same thing as chan but check
     return commands.check(predicate)
 ###
 
-"""
-@client.command()
-async def load(ctx, extension):
-    await client.load_extension(f'cogs.{extension}')
-
-@client.command()
-async def unload(ctx, extension):
-    await client.unload_extension(f'cogs.{extension}')
-
-for filename in os.listdir('./cogs'):
-    if filename.endswith('.py'):
-        client.load_extension(f'cogs.{filename[:-3]}')
-"""
-
-
-@client.command()
+@client.command(name='help', description='lists all of ergots commands.')
 @is_in_chan(int(channel_id))
 @is_in_guild(int(guild_id))
 @commands.is_owner()
 
-async def ss(ctx):
+async def help(ctx):
+    helptext = '```'
+    for command in client.commands:
+        helptext+=f'{command.name}  |  {command.description}\n'
+    helptext+='```'
+    await ctx.send(helptext)
+
+@client.command(name='clearterm', description='clears the ergot terminal then takes a screenshot.')
+@is_in_chan(int(channel_id))
+@is_in_guild(int(guild_id))
+@commands.is_owner()
+
+
+async def clearterm(ctx):
+    await ctx.send("clearing terminal.")
+    clearterminal(0,0)
+    await ss(ctx, withprint=False)
+
+
+@client.command(name='ss', description='screenshots your monitor(s) and sends the screenshot to the channel.')
+@is_in_chan(int(channel_id))
+@is_in_guild(int(guild_id))
+@commands.is_owner()
+
+async def ss(ctx, withprint=True):
       user = os.environ.get('USERNAME')
+
+      def withprinting(string):
+          if withprint == True:
+              print(string)
+          else:
+              return
+          
       await ctx.send("Screenshotting " + user + "'s main monitor.")
-      N = 7
-      res = ''.join(random.choices(string.ascii_uppercase + string.digits, k=N))
+      randomstring = ''.join(random.choices(string.ascii_uppercase + string.digits, k=7))
       image = getScreenAsImage()
-      full = "tempUser" + user + str(res) + ".png"
-      fullpath = os.path.join(dir_p, full)
-      print("Full path to png | "+fullpath)
-      image.save(full)
-      if os.path.exists(full):
-         print("found "+full)
-         await ctx.send(file=discord.File(full))
+      FullPNGName = "tempUser" + user + str(randomstring) + ".png"
+      FullDirectoryPathToPNG = os.path.join(directory_path, FullPNGName)
+
+      withprinting(f"FullPNGName path to png | {FullDirectoryPathToPNG}")
+
+      image.save(FullPNGName)
+
+      if os.path.exists(FullPNGName):
+         withprinting(f"found {FullPNGName}")
+         await ctx.send(file=discord.File(FullPNGName))
       else:
-         print("Cannot find " + full + " :(")
-         await ctx.send("Cannot find " + full + " :("+"\nfull path | "+fullpath)
-      print ("Removing file | "+fullpath)
-      if os.path.exists(full):
-         os.remove(full)
+         withprinting(f"Cannot find {FullPNGName} :(")
+         await ctx.send("Cannot find " + FullPNGName + " :("+"\nfull path | "+FullDirectoryPathToPNG)
+      withprinting(f"Removing file | {FullDirectoryPathToPNG}")
+
+      if os.path.exists(FullPNGName):
+         os.remove(FullPNGName)
          await ctx.send("removed screenshot")
       else:
-         print("cannot find " + full + " :(")
-         await ctx.send("cannot find " + full + " :(")
+         withprinting(f"Cannot find {FullPNGName} :(")
+         await ctx.send("cannot find " + FullPNGName + " :(")
 
-@ss.error
-async def ss_error(ctx, error):
-    if isinstance(error, commands.CheckFailure):
-        await ctx.send(error)
-
-
-@client.command()
+@client.command(name='getpns', description='gets all process names (pns for short) and outputs them.')
 @is_in_chan(int(channel_id))
 @is_in_guild(int(guild_id))
 @commands.is_owner()
 
-async def sendfile(ctx):
-    await ctx.send("NIL")
+async def getpns(ctx):
+    await ctx.send("Grabbing processes..")
+    remote = wmi.WMI()
+    process_names_list = []
+        
+    for process in remote.Win32_Process():
+        process_name = process.Name
+        process_names_list.append(process_name)
 
-@sendfile.error
-async def ss_error(ctx, error):
-    if isinstance(error, commands.CheckFailure):
-        await ctx.send(error)
+    process_names_list = list(set(process_names_list))  # Use set to remove duplicates
+    await ctx.send("```"+"\n".join(process_names_list)+"```")
+    
+@client.command(name='killproc', description='kills specified process NAME | ex: brave.exe')
+@is_in_chan(int(channel_id))
+@is_in_guild(int(guild_id))
+@commands.is_owner()
 
-@client.command()
+async def killproc(ctx):
+    await ctx.send("input process name you wish to be terminated, type | " + '"CANCEL" to stop.')
+    response = await client.wait_for('message')
+    if response.content != 'CANCEL':
+        await ctx.send(f"Proceeding | KILLING PROCESS: {response.content}")
+        ProcessInput = ''.join(response.content.split())
+        os.system("taskkill /f /im "+ ProcessInput)
+        await ss(ctx,withprint=False)
+    elif response.content == 'CANCEL':
+        await ctx.send("Cancelling.")
+        return
+
+@client.command(name='stats', description='outputs your CPU, GPU, and RAM usage, aswell as pc runtime.')
 @is_in_chan(int(channel_id))
 @is_in_guild(int(guild_id))
 @commands.is_owner()
@@ -149,29 +198,22 @@ async def stats(ctx):
    embed.add_field(name="PC Runtime/Last rebooted: ", value=str(pcr), inline=False)
    await ctx.send(embed=embed)
 
-@stats.error
-async def ss_error(ctx, error):
-    if isinstance(error, commands.CheckFailure):
-        await ctx.send(error)
 
-@client.command()
+@client.command(name='shutoff', description='shuts off your PC within 10 seconds with confirmation ofc.')
 @is_in_chan(int(channel_id))
 @is_in_guild(int(guild_id))
 @commands.is_owner()
 async def shutoff(ctx):
     await ctx.send("Continue with PC shutoff? (Y/N)")
 
-    response = await client.wait_for("message")
+    response = await client.wait_for('message')
     if response.content == 'Y':
         await ctx.send("Proceeding: SHUTTING DOWN PC IN 10 SECONDS.")
         await ss(ctx)
         os.system("C:\Windows\System32\shutdown.exe -s -t 10")
     elif response.content == 'N':
         await ctx.send("Cancelling shutdown.")
-@stats.error
-async def ss_error(ctx, error):
-    if isinstance(error, commands.CheckFailure):
-        await ctx.send(error)
+        return
     
 
 client.run(token_id)
